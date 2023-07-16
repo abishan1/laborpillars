@@ -1,4 +1,4 @@
-import os, sys, string
+import os, sys, string, csv
 
 class DataParser:
 
@@ -7,6 +7,7 @@ class DataParser:
         self.filter = str.maketrans(translation)
         self.keywords = {}
         self.category_keywords = {}
+        self.rootdir = catfile
         with open(dictfile) as f:
             lines = f.readlines()
             for line in lines:
@@ -22,15 +23,15 @@ class DataParser:
             in_section = False
             
             for line in lines:
-                if (in_section and len(line) > 2):  # Line not empty
-                    targ_line = line
-                    in_section = False
-                if (line == "DUTIES\n"):
-                    in_section = True
+                # if (in_section and len(line) > 2):  # Line not empty
+                #     targ_line = line
+                #     in_section = False
+                # if (line == "DUTIES\n"):
+                #     in_section = True
                 line = line.translate(self.filter)
                 for word in line.split():
                     if word.lower() in self.keywords:
-                        self.category_keywords[category.lower()][word.lower()] += 1
+                        self.category_keywords[category][word.lower()] += 1
         targ_line = targ_line.translate(self.filter)
         # print(targ_line)
         """
@@ -40,10 +41,31 @@ class DataParser:
         """
         return targ_line
     
-    def get_keywords(self):
-        return self.category_keywords
+    def extract_all(self):
+        for category in os.listdir(self.rootdir):
+            for file in os.listdir(self.rootdir + '/' + category):
+                self.extract_file(self.rootdir + "/" + category + '/' + file, category)
 
-# dp = DataParser("keywords.txt", "categories.txt")
+    def get_keyword_freq(self):
+        return self.category_keywords
+    
+    def write_csv(self, filename):
+        catheads = ["Category_Name"]
+        for key, val in self.keywords.items():
+            catheads.append(key)
+        with open(filename, 'w', newline='') as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=catheads)
+            writer.writeheader()
+            for category in self.category_keywords.keys():
+                csvdict = dict(self.category_keywords[category])
+                csvdict["Category_Name"] = category
+                writer.writerow(csvdict)
+
+
+dp = DataParser("keywords.txt", "Categorized_Jobs")
+dp.extract_all()
+dp.write_csv('keyword_frequencies.csv')
+# print(dp.get_keyword_freq())
 # for filename in os.listdir('Administrative_Accounting'):  # This just recursively scans the whole thing
 #     # print(filename)
 #     dp.extract_file("Administrative_Accounting/" + filename, "admin")
@@ -54,4 +76,3 @@ class DataParser:
 # for filename in os.listdir('Medical'):  
 #     dp.extract_file("Medical/" + filename, "medical")
 # print(dp.get_keywords())
-
