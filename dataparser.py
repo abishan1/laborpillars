@@ -12,10 +12,8 @@ class DataParser:
             for line in lines:
                 self.keywords[line.strip().lower()] = 0
 
-        with open(catfile) as f:
-            lines = f.readlines()
-            for line in lines:
-                self.category_keywords[line.strip().lower()] = dict(self.keywords)
+        for line in os.listdir(catfile):
+            self.category_keywords[line] = dict(self.keywords)
 
     def extract_file(self, filename, category): 
         targ_line = ""
@@ -45,15 +43,15 @@ class DataParser:
     def get_keywords(self):
         return self.category_keywords
 
-dp = DataParser("keywords.txt", "categories.txt")
-for filename in os.listdir('Administrative_Accounting'):  # This just recursively scans the whole thing
-    # print(filename)
-    dp.extract_file("Administrative_Accounting/" + filename, "admin")
-for filename in os.listdir('Airport'):  
-    dp.extract_file("Airport/" + filename, "airport")
-for filename in os.listdir('Electric_Mechanic'):  
-    dp.extract_file("Electric_Mechanic/" + filename, "mechanic")
-for filename in os.listdir('Medical'):  
-    dp.extract_file("Medical/" + filename, "medical")
-print(dp.get_keywords())
-    
+# dp = DataParser("keywords.txt", "categories.txt")
+# for filename in os.listdir('Administrative_Accounting'):  # This just recursively scans the whole thing
+#     # print(filename)
+#     dp.extract_file("Administrative_Accounting/" + filename, "admin")
+# for filename in os.listdir('Airport'):  
+#     dp.extract_file("Airport/" + filename, "airport")
+# for filename in os.listdir('Electric_Mechanic'):  
+#     dp.extract_file("Electric_Mechanic/" + filename, "mechanic")
+# for filename in os.listdir('Medical'):  
+#     dp.extract_file("Medical/" + filename, "medical")
+# print(dp.get_keywords())
+
