@@ -15,6 +15,7 @@ class DataParser:
                 self.keywords[line.strip().lower()] = 0
 
         for line in os.listdir(catfile):
+            if not os.path.isdir(self.rootdir + '/' + line): continue
             self.category_keywords[line] = dict(self.keywords)
             self.category_wc[line] = 0
 
@@ -46,6 +47,7 @@ class DataParser:
     
     def extract_all(self):
         for category in os.listdir(self.rootdir):
+            if not os.path.isdir(self.rootdir + '/' + category): continue
             for file in os.listdir(self.rootdir + '/' + category):
                 self.extract_file(self.rootdir + "/" + category + '/' + file, category)
             for key, val in self.category_keywords[category].items():
