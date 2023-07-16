@@ -7,6 +7,7 @@ class DataParser:
         self.filter = str.maketrans(translation)
         self.keywords = {}
         self.category_keywords = {}
+        self.category_wc = {}
         self.rootdir = catfile
         with open(dictfile) as f:
             lines = f.readlines()
@@ -15,6 +16,7 @@ class DataParser:
 
         for line in os.listdir(catfile):
             self.category_keywords[line] = dict(self.keywords)
+            self.category_wc[line] = 0
 
     def extract_file(self, filename, category): 
         targ_line = ""
@@ -30,6 +32,7 @@ class DataParser:
                 #     in_section = True
                 line = line.translate(self.filter)
                 for word in line.split():
+                    self.category_wc[category] += 1
                     if word.lower() in self.keywords:
                         self.category_keywords[category][word.lower()] += 1
         targ_line = targ_line.translate(self.filter)
@@ -45,6 +48,8 @@ class DataParser:
         for category in os.listdir(self.rootdir):
             for file in os.listdir(self.rootdir + '/' + category):
                 self.extract_file(self.rootdir + "/" + category + '/' + file, category)
+            for key, val in self.category_keywords[category].items():
+                self.category_keywords[category][key] = round(val / self.category_wc[category] * 1000000, 2)
 
     def get_keyword_freq(self):
         return self.category_keywords
@@ -66,6 +71,7 @@ dp = DataParser("keywords.txt", "Categorized_Jobs")
 dp.extract_all()
 dp.write_csv('keyword_frequencies.csv')
 # print(dp.get_keyword_freq())
+
 # for filename in os.listdir('Administrative_Accounting'):  # This just recursively scans the whole thing
 #     # print(filename)
 #     dp.extract_file("Administrative_Accounting/" + filename, "admin")
